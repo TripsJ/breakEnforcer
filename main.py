@@ -45,13 +45,13 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
     
 def cache_image(imageinfo: dict):
     if type(imageinfo) == dict:
+        filename = imageinfo['url'].split("/")[-1]
         imagedata = requests.get(imageinfo['url'])
-        filename = imageinfo['url'].spit("/")[-1]
-        print(filename)
         with open(filename, 'wb') as f:
             f.write(imagedata.content)
+        return filename
     else:
-        print (imagedata.content)
+        return (imageinfo)
         
     
     
@@ -83,8 +83,7 @@ def main():
     # if set_timer(hours, minutes):
     #    print("Ready")
     info = get_json_nasa()
-    print(info)
-    #cache_image(info)
+    print(cache_image(info))
 
 
 if __name__ == "__main__":
