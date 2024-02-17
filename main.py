@@ -1,4 +1,6 @@
+import http.client
 import time  # Keep track of time and sleep
+
 import requests  # Make webrequests to apis
 
 
@@ -48,6 +50,8 @@ def cache_image(imageinfo: dict):
         filename = imageinfo['url'].split("/")[-1]
         imagedata = requests.get(imageinfo['url'])
         with open(filename, 'wb') as f:
+        # the mode wb stands for write and binary, wich is relevant on Windows as it distinguishes between text and nontext files.
+        # cf https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
             f.write(imagedata.content)
         return filename
     else:
@@ -63,10 +67,12 @@ def get_image_offline():
 
 
 def check_connection() -> bool:
-    """Check if Machine is connected to the internet
-    return True if it is, false if not"""
-    return None
-
+    conn = http.client.HTTPConnection("www.google.com") #Testing against googles dns address
+    try:
+        conn.request("HEAD", "/") # No need to download anything so limmiting the request to only get the Head
+        return True
+    except:
+        return False # In case of exception return False
 
 def display_image(image):
     """get focus from Window Manager and display image Full Screen"""
@@ -82,8 +88,11 @@ def main():
     # hours, minutes = get_input()
     # if set_timer(hours, minutes):
     #    print("Ready")
-    info = get_json_nasa()
-    print(cache_image(info))
+    if check_connection():
+        info = get_json_nasa()
+        print(cache_image(info))
+    else:
+        print("You are disconnected")
 
 
 if __name__ == "__main__":
