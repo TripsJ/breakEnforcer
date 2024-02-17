@@ -44,22 +44,21 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
         return response.json()[0]
     except requests.HTTPError:
         return response.status_code
-    
+
+
 def cache_image(imageinfo: dict):
     if type(imageinfo) == dict:
-        filename = imageinfo['url'].split("/")[-1]
-        imagedata = requests.get(imageinfo['url'])
-        with open(filename, 'wb') as f:
-        # the mode wb stands for write and binary, wich is relevant on Windows as it distinguishes between text and nontext files.
-        # cf https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+        filename = imageinfo["url"].split("/")[-1]
+        imagedata = requests.get(imageinfo["url"])
+        with open(filename, "wb") as f:
+            # the mode wb stands for write and binary, wich is relevant on Windows as it distinguishes between text and nontext files.
+            # cf https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
             f.write(imagedata.content)
         return filename
     else:
-        return (imageinfo)
-        
-    
-    
-    
+        return imageinfo
+
+
 def get_image_offline():
     """Get random image from a set of local folders
     return path to that image"""
@@ -67,12 +66,17 @@ def get_image_offline():
 
 
 def check_connection() -> bool:
-    conn = http.client.HTTPConnection("www.google.com") #Testing against googles dns address
+    conn = http.client.HTTPConnection(
+        "www.google.com"
+    )  # Testing against googles dns address
     try:
-        conn.request("HEAD", "/") # No need to download anything so limmiting the request to only get the Head
+        conn.request(
+            "HEAD", "/"
+        )  # No need to download anything so limmiting the request to only get the Head
         return True
     except:
-        return False # In case of exception return False
+        return False  # In case of exception return False
+
 
 def display_image(image):
     """get focus from Window Manager and display image Full Screen"""
