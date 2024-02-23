@@ -1,6 +1,5 @@
 import http.client
 import time  # Keep track of time and sleep
-
 import requests  # Make webrequests to apis
 
 
@@ -26,10 +25,6 @@ def set_timer(hours, minutes) -> bool:
         current_time = time.strftime("%H:%M")
         print(current_time)
     return True
-
-
-def read_config(configfile) -> dict:
-    """reads necessary and optional configuration options from a file and returns them as a dict"""
 
 
 def get_json_nasa(apikey: str = "DEMO_KEY"):
@@ -60,8 +55,7 @@ def cache_image(imageinfo: dict):
 
 
 def get_image_offline():
-    """Get random image from a set of local folders
-    return path to that image"""
+    """Get random image from a set of local folders return path to that image"""
     return None
 
 
@@ -79,7 +73,8 @@ def check_connection() -> bool:
 
 
 def display_image(image):
-    """get focus from Window Manager and display image Full Screen"""
+    """display a downloaded or selected image using a specified terminal command"""
+
     return None
 
 
@@ -94,9 +89,11 @@ def main():
     #    print("Ready")
     if check_connection():
         info = get_json_nasa()
-        print(cache_image(info))
+        image = cache_image(info)
+        print(image)
     else:
         print("You are disconnected")
+    display_image(image)
 
 
 if __name__ == "__main__":

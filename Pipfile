@@ -5,8 +5,13 @@ name = "pypi"
 
 [packages]
 requests = "*"
+pillow = "*"
+opencv-python = "*"
 
 [dev-packages]
+black = "*"
+pytest = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.11"
