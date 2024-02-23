@@ -1,6 +1,7 @@
 import http.client
 import time  # Keep track of time and sleep
 import requests  # Make webrequests to apis
+from PIL import Image, ImageShow
 
 
 def get_input():
@@ -73,7 +74,11 @@ def check_connection() -> bool:
 
 
 def display_image(image):
-    """display a downloaded or selected image using a specified terminal command"""
+    """display an Image"""
+    im= Image.open(image)
+    # TODO if Linux else
+    ImageShow.register(ImageShow.XDGViewer(),0) #use whatever xdg-open sets as system default
+    im.show(im)
 
     return None
 
