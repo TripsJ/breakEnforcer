@@ -1,7 +1,7 @@
 import http.client
-import time  # Keep track of time and sleep
 import requests  # Make webrequests to apis
 from PIL import Image, ImageShow
+from timer import Timer
 
 
 def get_input():
@@ -18,14 +18,15 @@ def get_input():
 
 
 # TODO: make this not freeze the whole thing while counting down
-def set_timer(hours, minutes) -> bool:
-    current_time = time.strftime("%H:%M")
-    target_time = f"{hours}:{minutes}"
-    while current_time != target_time:
-        time.sleep(1)
-        current_time = time.strftime("%H:%M")
-        print(current_time)
-    return True
+# For a pomodoro ill need 3 instances of this so it probably shouldbe an object
+#def set_timer(hours, minutes) -> bool:
+#    current_time = time.strftime("%H:%M")
+#    target_time = f"{hours}:{minutes}"
+#    while current_time != target_time:
+#        time.sleep(1)
+#        current_time = time.strftime("%H:%M")
+#        print(current_time)
+#    return True
 
 
 def get_json_nasa(apikey: str = "DEMO_KEY"):
@@ -89,6 +90,7 @@ def error(exception: Exception):
 
 
 def main():
+    roundtimer = Timer()
     # hours, minutes = get_input()
     # if set_timer(hours, minutes):
     #    print("Ready")
