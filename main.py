@@ -2,7 +2,7 @@ import http.client
 import requests  # Make webrequests to apis
 from PIL import Image, ImageShow
 from timer import Timer
-import time
+
 
 
 def get_input():
@@ -68,12 +68,14 @@ def check_connection() -> bool:
 
 def display_image(image):
     """display an Image"""
-    im = Image.open(image)
-    # TODO if Linux else
-    ImageShow.register(
-        ImageShow.XDGViewer(), 0
-    )  # use whatever xdg-open sets as system default
-    im.show(im)
+    try:
+        im = Image.open(image)
+        ImageShow.register(
+            ImageShow.XDGViewer(), 0
+            )  # use whatever xdg-open sets as system default
+        im.show(im)
+    except PIL.UnidentifiedImageError:
+        print("an error occured")
 
     return None
 
@@ -85,8 +87,9 @@ def error(exception: Exception):
 
 def main():
     roundtimer = Timer()
-    roundtimer.target_time = "17:50"
-    print(roundtimer.target_time)
+    roundtimer.duration="00:02"
+    roundtimer.set_timer()
+    print(roundtimer)
 
     if check_connection():
         info = get_json_nasa()
@@ -97,7 +100,7 @@ def main():
 
     roundtimer.run()
     display_image(image)
-    # TODO: Program should make its own windows insteas of relying on pip
+    # TODO: Program should make its own windows insteas of relying on pil
 
 
 if __name__ == "__main__":

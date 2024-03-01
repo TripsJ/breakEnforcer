@@ -1,42 +1,48 @@
 import time
-from datetime import timedelta
 
 
 class Timer:
-    def __init__(self, target_time=time.strftime("%H:%M")):
-        self.target_time = target_time
+    def __init__(self):
+        self.duration = ""
+        self.countdown = -1
+
+    def __str__(self):
+        return f"This Timer is set to run for {self.duration} and has {self.countdown} seconds left"
 
     @property
-    def target_time(self):
-        return self._target_time
+    def duration(self):
+        return self._duration
 
-    @target_time.setter
-    def target_time(self, target_time):
-        target_time = target_time.lower()
-        if "h" in target_time:
-            splitchar = "h"
-        elif ":" in target_time:
+    @duration.setter
+    def duration (self,duration):
+        self._duration = duration.lower()
+
+    @property
+    def countdown(self):
+        return self._countdown
+
+    @countdown.setter
+    def countdown (self, countdown):
+        self._countdown = countdown
+
+    def set_timer(self):
+        if "h"in self.duration:
+            splitchar=h
+        elif":" in self.duration:
             splitchar = ":"
-        else:
-            raise ValueError("Time Format must be HH:MM of HHhMM")
-
-        h, m = target_time.split(splitchar)
-        # check for valid integers
-        hours: int = int(h)
-        minutes: int = int(m)
-        timestring = f"{hours:02d}:{minutes:02d}"
-
-        self._target_time = timestring
-
-    # def set_timer(self):
-    #    """set the timer from a given input"""
-    #   inputstr = input()
+        
+        sh,sm = self.duration.split(splitchar)
+        h = int(sh)
+        m = int(sm) + (h * 60)
+        self.countdown = m *60
 
     def run(self) -> bool:
         """Run the timer"""
-        current_time: str = time.strftime("%H:%M")
-        while current_time != self.target_time:
-            time.sleep(1)
-            current_time: str = time.strftime("%H:%M")
-            print(current_time)
-        return True
+        if self.countdown < 0:
+            print("please set timer first")
+        else:    
+             while self._countdown != 0:
+                 time.sleep(1)
+                 self.countdown -=1
+                 print(self.countdown)
+             return True
