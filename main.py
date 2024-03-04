@@ -1,6 +1,6 @@
 import http.client
 import requests  # Make webrequests to apis
-from PIL import Image, ImageShow
+from PIL import Image, ImageShow, ImageGrab, UnidentifiedImageError
 from timer import Timer
 
 
@@ -52,6 +52,15 @@ def get_image_offline():
     """Get random image from a set of local folders return path to that image"""
     return None
 
+def get_monitor_size():
+    monitor = ImageGrab.grab()
+    return monitor.size
+
+def resize_image(input_filename: str,resolution:tuple):
+    with Image.open(input_filename) as im:
+        im = im.resize(resolution)
+        im.save(f"resized_{input_filename}")
+    return f"resized_{input_filename}"
 
 def check_connection() -> bool:
     conn = http.client.HTTPConnection(
@@ -74,7 +83,7 @@ def display_image(image):
             ImageShow.XDGViewer(), 0
             )  # use whatever xdg-open sets as system default
         im.show(im)
-    except PIL.UnidentifiedImageError:
+    except UnidentifiedImageError:
         print("an error occured")
 
     return None
@@ -86,11 +95,12 @@ def error(exception: Exception):
 
 
 def main():
-    roundtimer = Timer()
-    roundtimer.duration="00:02"
-    roundtimer.set_timer()
-    print(roundtimer)
-
+    #roundtimer = Timer()
+    #roundtimer.duration="00:02"
+    #roundtimer.set_timer()
+    #print(roundtimer)
+    
+    
     if check_connection():
         info = get_json_nasa()
         image = cache_image(info)
@@ -98,8 +108,9 @@ def main():
     else:
         print("You are disconnected")
 
-    roundtimer.run()
-    display_image(image)
+    #roundtimer.run()
+    resized_img = resize_image(image,get_monitor_size())
+    display_image(resized_img)
     # TODO: Program should make its own windows insteas of relying on pil
 
 
