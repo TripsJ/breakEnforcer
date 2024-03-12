@@ -190,3 +190,4 @@ cython_debug/
 
 #User specific config
 *.toml
+tkinter/
