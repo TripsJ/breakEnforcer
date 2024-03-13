@@ -14,7 +14,7 @@ class Timer:
         return self._duration
 
     @duration.setter
-    def duration (self,duration):
+    def duration(self, duration):
         self._duration = duration.lower()
 
     @property
@@ -22,27 +22,27 @@ class Timer:
         return self._countdown
 
     @countdown.setter
-    def countdown (self, countdown):
+    def countdown(self, countdown):
         self._countdown = countdown
 
     def set_timer(self):
-        if "h"in self.duration:
-            splitchar=h
-        elif":" in self.duration:
+        if "h" in self.duration:
+            splitchar = h
+        elif ":" in self.duration:
             splitchar = ":"
-        
-        sh,sm = self.duration.split(splitchar)
+
+        sh, sm = self.duration.split(splitchar)
         h = int(sh)
         m = int(sm) + (h * 60)
-        self.countdown = m *60
+        self.countdown = m * 60
 
     def run(self) -> bool:
         """Run the timer"""
         if self.countdown < 0:
             print("please set timer first")
-        else:    
-             while self._countdown != 0:
-                 time.sleep(1)
-                 self.countdown -=1
-                 print(self.countdown)
-             return True
+        else:
+            while self._countdown != 0:
+                time.sleep(1)
+                self.countdown -= 1
+                print(self.countdown)
+            return True
