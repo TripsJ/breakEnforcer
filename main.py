@@ -1,6 +1,7 @@
 import http.client
 import requests  # Make webrequests to apis
-from PIL import Image, ImageShow, ImageGrab, UnidentifiedImageError
+from tkinter import *
+from PIL import Image,ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
 from timer import Timer
 
 
@@ -78,11 +79,13 @@ def check_connection() -> bool:
 def display_image(image):
     """display an Image"""
     try:
+        root = Tk()
         im = Image.open(image)
-        ImageShow.register(
-            ImageShow.XDGViewer(), 0
-            )  # use whatever xdg-open sets as system default
-        im.show(im)
+        tkim = ImageTk.PhotoImage(im)
+        label1= Label(image=tkim)
+        label1.image=tkim
+        label1.pack()
+        root.mainloop()
     except UnidentifiedImageError:
         print("an error occured")
 
