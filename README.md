@@ -25,3 +25,9 @@ The following Python libraries were used
 
 Testing for internet connection: https://stackoverflow.com/questions/17440343/python-checking-internet-connection-more-than-once
 automating black on commits with precommit: https://pre-commit.com and https://black.readthedocs.io/en/stable/integrations/source_version_control.html
+
+## Notes
+
+git can force commit signing with git config commit.gpgsign true
+git hooks can be used to verify that commits are signed according to this stack overflow answer
+https://stackoverflow.com/questions/75864275/how-can-i-prevent-unsigned-git-commits-from-being-pushed-to-the-repository
