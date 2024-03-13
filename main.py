@@ -1,9 +1,8 @@
 import http.client
 import requests  # Make webrequests to apis
 from tkinter import *
-from PIL import Image,ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
+from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
 from timer import Timer
-
 
 
 def get_input():
@@ -53,15 +52,18 @@ def get_image_offline():
     """Get random image from a set of local folders return path to that image"""
     return None
 
+
 def get_monitor_size():
     monitor = ImageGrab.grab()
     return monitor.size
 
-def resize_image(input_filename: str,resolution:tuple):
+
+def resize_image(input_filename: str, resolution: tuple):
     with Image.open(input_filename) as im:
         im = im.resize(resolution)
         im.save(f"resized_{input_filename}")
     return f"resized_{input_filename}"
+
 
 def check_connection() -> bool:
     conn = http.client.HTTPConnection(
@@ -76,15 +78,15 @@ def check_connection() -> bool:
         return False  # In case of exception return False
 
 
-def display_image(image,res):
+def display_image(image, res):
     """display an Image"""
     try:
         root = Tk()
-        root.minsize(res[0],res[1])
+        root.minsize(res[0], res[1])
         im = Image.open(image)
         tkim = ImageTk.PhotoImage(im)
-        label1= Label(image=tkim)
-        label1.image=tkim
+        label1 = Label(image=tkim)
+        label1.image = tkim
         label1.pack()
         root.mainloop()
     except UnidentifiedImageError:
@@ -99,12 +101,11 @@ def error(exception: Exception):
 
 
 def main():
-    #roundtimer = Timer()
-    #roundtimer.duration="00:02"
-    #roundtimer.set_timer()
-    #print(roundtimer)
-    
-    
+    # roundtimer = Timer()
+    # roundtimer.duration="00:02"
+    # roundtimer.set_timer()
+    # print(roundtimer)
+
     if check_connection():
         info = get_json_nasa()
         image = cache_image(info)
@@ -112,11 +113,10 @@ def main():
     else:
         print("You are disconnected")
 
-    #roundtimer.run()
-    resolution=get_monitor_size()
-    resized_img = resize_image(image,resolution)
-    display_image(resized_img,resolution)
-    # TODO: Program should make its own windows insteas of relying on pil
+    # roundtimer.run()
+    resolution = get_monitor_size()
+    resized_img = resize_image(image, resolution)
+    display_image(resized_img, resolution)
 
 
 if __name__ == "__main__":
