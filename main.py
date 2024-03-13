@@ -76,10 +76,11 @@ def check_connection() -> bool:
         return False  # In case of exception return False
 
 
-def display_image(image):
+def display_image(image,res):
     """display an Image"""
     try:
         root = Tk()
+        root.minsize(res[0],res[1])
         im = Image.open(image)
         tkim = ImageTk.PhotoImage(im)
         label1= Label(image=tkim)
@@ -112,8 +113,9 @@ def main():
         print("You are disconnected")
 
     #roundtimer.run()
-    resized_img = resize_image(image,get_monitor_size())
-    display_image(resized_img)
+    resolution=get_monitor_size()
+    resized_img = resize_image(image,resolution)
+    display_image(resized_img,resolution)
     # TODO: Program should make its own windows insteas of relying on pil
 
 
