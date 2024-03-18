@@ -92,7 +92,7 @@ def display_image(image, res):
     except UnidentifiedImageError:
         print("an error occured")
 
-    return None
+    return root
 
 
 def error(exception: Exception):
@@ -101,10 +101,13 @@ def error(exception: Exception):
 
 
 def main():
-    # roundtimer = Timer()
-    # roundtimer.duration="00:02"
-    # roundtimer.set_timer()
-    # print(roundtimer)
+    roundtimer = Timer()
+    breaktimer = Timer()
+    roundtimer.duration = "00:02"
+    breaktimer.duration = "00:01"
+    roundtimer.set_timer()
+    breaktimer.set_timer()
+    print(roundtimer)
 
     if check_connection():
         info = get_json_nasa()
@@ -113,10 +116,12 @@ def main():
     else:
         print("You are disconnected")
 
-    # roundtimer.run()
+    roundtimer.run()
     resolution = get_monitor_size()
     resized_img = resize_image(image, resolution)
-    display_image(resized_img, resolution)
+    window = display_image(resized_img, resolution)
+    breaktimer.run()
+    window.destroy()
 
 
 if __name__ == "__main__":
