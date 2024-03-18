@@ -88,7 +88,6 @@ def display_image(image, res):
         label1 = Label(image=tkim)
         label1.image = tkim
         label1.pack()
-        root.mainloop()
     except UnidentifiedImageError:
         print("an error occured")
 
@@ -102,11 +101,9 @@ def error(exception: Exception):
 
 def main():
     roundtimer = Timer()
-    breaktimer = Timer()
     roundtimer.duration = "00:02"
-    breaktimer.duration = "00:01"
+    breaktime = 60000
     roundtimer.set_timer()
-    breaktimer.set_timer()
     print(roundtimer)
 
     if check_connection():
@@ -120,8 +117,9 @@ def main():
     resolution = get_monitor_size()
     resized_img = resize_image(image, resolution)
     window = display_image(resized_img, resolution)
-    breaktimer.run()
-    window.destroy()
+
+    window.after(breaktime, window.destroy)
+    window.mainloop()
 
 
 if __name__ == "__main__":
