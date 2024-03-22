@@ -192,3 +192,7 @@ cython_debug/
 *.toml
 tkinter/
 !.pre-commit-config.yaml
+!.pylintrc
+
+#specific Files for manual testing
+*test.py
