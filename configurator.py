@@ -6,7 +6,12 @@ import toml
 class Configurator:
     def __init__(self, filepath="break.toml"):
         self.filepath = filepath  # path to configfile
-        self.config = {}
+        self.configuration = {
+            "api": {"key": {"nasa": "defaultvalue"}},
+            "storage": {"path": ".", "max": 1},
+            "breaks": {"long": 30, "short": 5},
+            "work": {"interval": 40, "rounds": 3},
+        }
         # commandline arguments
 
     def read_configfile(self):
@@ -22,8 +27,14 @@ class Configurator:
     @filepath.setter
     def filepath(self, filepath):
         if os.path.isfile(os.path.abspath(filepath)):
-            self._filepath = filepath
-            self.config = self.read_configfile()
+            if os.path.splitext(filepath)[1] == ".toml":
+                self._filepath = filepath
+            else:
+                print("invalid File")
+                # FIXIT Needs decent FileNotFound Error
+                raise FileNotFoundError(
+                    errno.ENOENT, os.strerror(errno.ENOENT), filepath
+                )
         else:
             print("YAY I BROKE IT")
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filepath)
