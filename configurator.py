@@ -1,4 +1,5 @@
 import os.path
+from InvalidFileError import InvalidFileError
 import errno
 import toml
 
@@ -20,6 +21,11 @@ class Configurator:
             # because it has the most characters and avoids relying on system defaults
             return toml.load(file)
 
+    def write_configfile(self):
+        with open("config.toml", "w") as f:
+            toml.dump(self.configuration, f)
+        print("config.toml created")
+
     @property
     def filepath(self):
         return self._filepath
@@ -31,10 +37,11 @@ class Configurator:
                 self._filepath = filepath
             else:
                 print("invalid File")
-                # FIXIT Needs decent FileNotFound Error
-                raise FileNotFoundError(
-                    errno.ENOENT, os.strerror(errno.ENOENT), filepath
+                # errno.EINVAL is the invalid Argument errno
+                raise InvalidFileError(
+                    errno.EINVAL, os.strerror(errno.EINVAL), filepath
                 )
+
         else:
-            print("YAY I BROKE IT")
+            print("File not found")
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filepath)

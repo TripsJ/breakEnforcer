@@ -196,3 +196,4 @@ tkinter/
 
 #specific Files for manual testing
 *test.py
+test.*
