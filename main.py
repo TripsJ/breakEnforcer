@@ -141,7 +141,7 @@ def main():
     while rounds > 0:
         roundtimer.set_timer()
         roundtimer.run()
-        window = display_image(resized_image, resolution)
+        window = display_image(resized_img, resolution)
         window.after(breaktime, window.destroy)
         rounds -= 1
         window.mainloop()
