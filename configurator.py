@@ -8,7 +8,7 @@ class Configurator:
     def __init__(self, filepath="break.toml"):
         self.filepath = filepath  # path to configfile
         self.configuration = {
-            "api": {"key": {"nasa": "defaultvalue"}},
+            "api": {"key": {"nasa": "DEMO_KEY"}},
             "storage": {"path": ".", "max": 1},
             "breaks": {"long": 30, "short": 5},
             "work": {"interval": 40, "rounds": 3},

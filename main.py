@@ -1,8 +1,30 @@
+from InvalidFileError import InvalidFileError
+from configurator import Configurator
 import http.client
 import requests  # Make webrequests to apis
 from tkinter import *
 from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
 from timer import Timer
+
+
+def get_conf():
+    try:
+        c = Configurator()
+        return c.read_configfile()
+    except InvalidFileError:
+        print(
+            "the specified file is invalid\nNow loading default configuration and saving it to file"
+        )
+        return rebuild_config()
+    except FileNotFoundError:
+        print("the specified file was not Found")
+        return rebuild_config()
+
+
+def rebuild_config():
+    c = Configurator()
+    c.write_configfile()
+    return c.configuration
 
 
 def get_input():
@@ -29,7 +51,7 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
     try:
         # raises HTTPError if requst was unsuccessfull
         response.raise_for_status()
-        # the api sends a list of Json back as it could very well contain multiple images, However this request is structured to return
+        # the api sends a list of Json back as it could very well contain multiple images. Requests from this api however, contain one url to an image.²
         return response.json()[0]
     except requests.HTTPError:
         return response.status_code
@@ -94,32 +116,35 @@ def display_image(image, res):
     return root
 
 
-def error(exception: Exception):
-    """handle Exceptions according to their nature"""
-    print("Something went Wong")
-
-
 def main():
-    roundtimer = Timer()
-    roundtimer.duration = "00:02"
-    breaktime = 60000
-    roundtimer.set_timer()
-    print(roundtimer)
-
+    configuration = get_conf()
+    print(configuration)
     if check_connection():
-        info = get_json_nasa()
+        if configuration["api"]["key"]["nasa"]:
+            info = get_json_nasa(configuration["api"]["key"]["nasa"])
+        else:
+            print("no apikey in config, using Demo key")
+            info = get_json_nasa()
+
         image = cache_image(info)
         print(image)
     else:
         print("You are disconnected")
 
-    roundtimer.run()
     resolution = get_monitor_size()
     resized_img = resize_image(image, resolution)
-    window = display_image(resized_img, resolution)
 
-    window.after(breaktime, window.destroy)
-    window.mainloop()
+    roundtimer = Timer()
+    roundtimer.duration = "00:01"
+    breaktime = 6000
+    rounds = 2
+    while rounds > 0:
+        roundtimer.set_timer()
+        roundtimer.run()
+        window = display_image(resized_image, resolution)
+        window.after(breaktime, window.destroy)
+        rounds -= 1
+        window.mainloop()
 
 
 if __name__ == "__main__":
