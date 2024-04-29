@@ -1,6 +1,7 @@
 from InvalidFileError import InvalidFileError
 from configurator import Configurator
 import http.client
+import os
 import requests  # Make webrequests to apis
 from tkinter import *
 from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
@@ -57,7 +58,7 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
         return response.status_code
 
 
-def cache_image(imageinfo: dict):
+def cache_image(imageinfo: dict, configuration: dict):
     if type(imageinfo) == dict:
         filename = imageinfo["url"].split("/")[-1]
         imagedata = requests.get(imageinfo["url"])
@@ -80,11 +81,25 @@ def get_monitor_size():
     return monitor.size
 
 
-def resize_image(input_filename: str, resolution: tuple):
+def resize_image(input_filename: str, resolution: tuple, configuration: dict):
     with Image.open(input_filename) as im:
         im = im.resize(resolution)
-        im.save(f"resized_{input_filename}")
-    return f"resized_{input_filename}"
+
+        if configuration["storage"]["path"]:
+            targetpath = configuration["storage"]["path"]
+            if os.path.isdir(
+                targetpath
+            ):  # FIXME This should be checked upon loading the config in a validation step
+                im.save(f"{targetpath}/resized_{input_filename}")
+                return f"{targetpath}/resized_{input_filename}"
+            else:
+                print(f"{targetpath} is not a directory")
+                im.save(f"resized_{input_filename}")
+                return f"resized_{input_filename}"
+
+        else:
+            im.save(f"resized_{input_filename}")
+            return f"resized_{input_filename}"
 
 
 def check_connection() -> bool:
@@ -119,6 +134,9 @@ def display_image(image, res):
 def main():
     configuration = get_conf()
     print(configuration)
+    # example config as it is currently expected
+    # {'api': {'key': {'nasa': 'PY6bYeyNsls75WPjeOeOdl6Xh6N6SOo7zHVzdhnf', 'test': 'test'}}, 'storage': {'path': '~/.config/break', 'max': 4}, 'breaks': {'long': 30, 'short': 10}, 'work': {'interval': 30, 'rounds': 3}}
+
     if check_connection():
         if configuration["api"]["key"]["nasa"]:
             info = get_json_nasa(configuration["api"]["key"]["nasa"])
@@ -132,7 +150,7 @@ def main():
         print("You are disconnected")
 
     resolution = get_monitor_size()
-    resized_img = resize_image(image, resolution)
+    resized_img = resize_image(image, resolution, configuration)
 
     roundtimer = Timer()
     roundtimer.duration = "00:01"
