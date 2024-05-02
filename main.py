@@ -60,7 +60,10 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
 
 def cache_image(imageinfo: dict, configuration: dict):
     if type(imageinfo) == dict:
-        filename = imageinfo["url"].split("/")[-1]
+        if targetpath := configuration.get("storage", {}).get("path"):
+            filename = f'{targetpath}/{imageinfo["url"].split("/")[-1]}'
+        else:
+            filename = imageinfo["url"].split("/")[-1]
         imagedata = requests.get(imageinfo["url"])
         with open(filename, "wb") as f:
             # the mode wb stands for write and binary, wich is relevant on Windows as it distinguishes between text and nontext files.
@@ -85,17 +88,9 @@ def resize_image(input_filename: str, resolution: tuple, configuration: dict):
     with Image.open(input_filename) as im:
         im = im.resize(resolution)
 
-        if configuration["storage"]["path"]:
-            targetpath = configuration["storage"]["path"]
-            if os.path.isdir(
-                targetpath
-            ):  # FIXME This should be checked upon loading the config in a validation step
-                im.save(f"{targetpath}/resized_{input_filename}")
-                return f"{targetpath}/resized_{input_filename}"
-            else:
-                print(f"{targetpath} is not a directory")
-                im.save(f"resized_{input_filename}")
-                return f"resized_{input_filename}"
+        if targetpath := configuration.get("storage", {}).get("path"):
+            im.save(f"{targetpath}/resized_{input_filename.split('/')[-1]}")
+            return f"{targetpath}/resized_{input_filename.split('/')[-1]}"
 
         else:
             im.save(f"resized_{input_filename}")
@@ -144,7 +139,7 @@ def main():
             print("no apikey in config, using Demo key")
             info = get_json_nasa()
 
-        image = cache_image(info)
+        image = cache_image(info, configuration)
         print(image)
     else:
         print("You are disconnected")

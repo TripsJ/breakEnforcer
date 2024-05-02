@@ -4,11 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
-pillow = "*"
-opencv-python = "*"
+requests = "==2.31.0"
+pillow = "==10.2.0"
+opencv-python = "==4.9.0.80"
 ipython = "*"
 toml = "*"
+certifi = "==2024.2.2"
+charset-normalizer = "==3.3.2"
+idna = "==3.6"
+numpy = "==1.26.4"
+urllib3 = "==2.2.1"
 
 [dev-packages]
 black = "*"

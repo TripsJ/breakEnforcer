@@ -19,7 +19,15 @@ class Configurator:
         with open(self.filepath, "r", encoding="utf-8") as file:
             # open the config file using utf-8 as the encoding
             # because it has the most characters and avoids relying on system defaults
-            return toml.load(file)
+            conf = toml.load(file)
+            # VALIDATE ENTRIES
+            if conf["storage"]["path"]:
+                path = conf["storage"]["path"]
+                if not os.path.isdir(path):
+                    del conf["storage"]["path"]
+                    print("invalid path detected")
+
+            return conf
 
     def write_configfile(self):
         with open("config.toml", "w") as f:
