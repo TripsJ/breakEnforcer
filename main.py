@@ -2,6 +2,8 @@ from InvalidFileError import InvalidFileError
 from configurator import Configurator
 import http.client
 import os
+import sys
+import random
 import requests  # Make webrequests to apis
 from tkinter import *
 from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
@@ -42,9 +44,11 @@ def get_input():
 
 
 # TODO: make this not freeze the whole thing while counting down
+# TODO: Create a graphical timer
 
 
 def get_json_nasa(apikey: str = "DEMO_KEY"):
+    # handle timeout
     """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it as a dict. If Errors Occure, return the status code"""
     response = requests.get(
         "https://api.nasa.gov/planetary/apod", params={"api_key": apikey, "count": 1}
@@ -55,11 +59,13 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
         # the api sends a list of Json back as it could very well contain multiple images. Requests from this api however, contain one url to an image.²
         return response.json()[0]
     except requests.HTTPError:
-        return response.status_code
+        print(response.status_code)
+        sys.exit()
 
 
 def cache_image(imageinfo: dict, configuration: dict):
     if type(imageinfo) == dict:
+        # Catch key error
         if targetpath := configuration.get("storage", {}).get("path"):
             filename = f'{targetpath}/{imageinfo["url"].split("/")[-1]}'
         else:
@@ -74,9 +80,13 @@ def cache_image(imageinfo: dict, configuration: dict):
         return imageinfo
 
 
-def get_image_offline():
-    """Get random image from a set of local folders return path to that image"""
-    return None
+# TODO Make this return the complete path instead of just the file
+def get_image_offline(configuration: dict):
+    if targetpath := configuration.get("storage", {}).get("path"):
+        if os.path.isdir(os.path.join(targetpath, "resized")):
+            return random.choice(os.listdir(os.path.join(targetpath, "resized")))
+
+    raise FielNotFoundError
 
 
 def get_monitor_size():
@@ -89,12 +99,16 @@ def resize_image(input_filename: str, resolution: tuple, configuration: dict):
         im = im.resize(resolution)
 
         if targetpath := configuration.get("storage", {}).get("path"):
-            im.save(f"{targetpath}/resized_{input_filename.split('/')[-1]}")
-            return f"{targetpath}/resized_{input_filename.split('/')[-1]}"
+            if not os.path.isdir(os.path.join(targetpath, "resized")):
+                os.mkdir(os.path.join(targetpath, "resized"))
+            im.save(f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}")
+            return f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}"
 
         else:
-            im.save(f"resized_{input_filename}")
-            return f"resized_{input_filename}"
+            if not os.path.isdir("resized"):
+                os.mkdir("resized")
+            im.save(f"resized/resized_{input_filename}")
+            return f"resized/resized_{input_filename}"
 
 
 def check_connection() -> bool:
@@ -141,11 +155,20 @@ def main():
 
         image = cache_image(info, configuration)
         print(image)
+        imageoff = None
     else:
-        print("You are disconnected")
+        imageoff = get_image_offline(configuration)
+        image = None
+        print(imageoff)
 
     resolution = get_monitor_size()
-    resized_img = resize_image(image, resolution, configuration)
+    if image is not None:
+        resized_img = resize_image(image, resolution, configuration)
+
+    elif imageoff is not None:
+        resized_img = imageoff
+    else:
+        print("That is unexpected")
 
     roundtimer = Timer()
     roundtimer.duration = "00:01"
