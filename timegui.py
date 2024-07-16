@@ -9,6 +9,9 @@ from tkinter import *
 from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
 
 
+# ToDo Disable start button if timer runs
+
+
 ## Getting configuration
 def get_conf():
     try:
@@ -109,7 +112,7 @@ def resize_image(input_filename: str, resolution: tuple, configuration: dict):
             return f"resized/resized_{input_filename}"
 
 
-def display_image(image, res):
+def display_image(image, res, duration):
     """display an Image"""
     try:
         frame = Tk()
@@ -119,6 +122,7 @@ def display_image(image, res):
         label1 = Label(image=tkim)
         label1.image = tkim
         label1.pack()
+        frame.after(converttoms(duration), frame.destroy)
     except UnidentifiedImageError:
         print("an error occured")
 
@@ -153,18 +157,71 @@ def converttoclock(countdown):
     return "%d:%d:%d" % (hours, minutes, seconds)
 
 
-def main():
+def run(countdown, resized_image, resolution):
+    """Run the timer"""
+    c = StringVar()
+    if countdown == 0:
+        root.destroy()
+        display_image(resized_img, resolution, pause)
+    if countdown < 0:
+        print("please set timer first")
+    c.set(
+        converttoclock(countdown * 1000)
+    )  # the countdown is in seconds but the conversion in ms so *1000
+    lable.config(textvariable=c)
+    countdown -= 1
+    lable.after(1000, run, countdown, resized_img, resolution)
+
+
+def turn(configuration, resized_img, resolution):
     duration: str = "0h:0m"
     countdown: int = -1
-    long_break: str = ""
-    short_break: str = ""
-    rounds = 1
-    configuration: dict = get_conf()
 
+    pause = configuration["breaks"]["short"]
+    duration = configuration["work"]["interval"]
+    countdown = converttoms(duration) / 1000
+    root = Tk()
+    clock = converttoclock(converttoms(duration))
+    lable = Label(root, text=clock)
+    startbtn = Button(
+        root,
+        text="Start",
+        font=("Arial", 15),
+        command=lambda: [
+            startbtn.config(state="disabled"),
+            run(countdown, resized_img, resolution),
+        ],
+    )
+
+    def run(countdown, resized_image, resolution):
+        """Run the timer"""
+        c = StringVar()
+        if countdown == 0:
+            root.destroy()
+            display_image(resized_img, resolution, pause)
+        if countdown < 0:
+            print("please set timer first")
+        c.set(
+            converttoclock(countdown * 1000)
+        )  # the countdown is in seconds but the conversion in ms so *1000
+        lable.config(textvariable=c)
+        countdown -= 1
+        lable.after(1000, run, countdown, resized_img, resolution)
+
+    lable.pack(anchor="center")
+    startbtn.pack(padx=20, pady=20)
+    root.mainloop()
+
+
+def main():
+    running = False
+    configuration: dict = get_conf()
+    currentround = 0
+    maxround = configuration["work"]["rounds"]
     print(type(configuration))
     print(configuration)
     # example config as it is currently expected
-    # {'api': {'key': {'nasa': 'PY6bYeyNsls75WPjeOeOdl6Xh6N6SOo7zHVzdhnf', 'test': 'test'}}, 'storage': {'path': '~/.config/break', 'max': 4}, 'breaks': {'long': 30, 'short': 10}, 'work': {'interval': 30, 'rounds': 3}}
+    # {'api': {'key': {'nasa': 'hgjlcOGG6700ioscmSOo7zHVzdhnf', 'test': 'test'}}, 'storage': {'path': '~/.config/break', 'max': 4}, 'breaks': {'long': 30, 'short': 10}, 'work': {'interval': 30, 'rounds': 3}}
 
     if check_connection():
         if configuration["api"]["key"]["nasa"]:
@@ -189,35 +246,10 @@ def main():
         resized_img = imageoff
     else:
         print("That is unexpected")
-    # Timer code goes here
-    duration = configuration["work"]["interval"]
-    countdown = converttoms(duration) / 1000
-    root = Tk()
-    clock = converttoclock(converttoms(duration))
-    lable = Label(root, text=clock)
 
-    def run(countdown, resized_image, resolution):
-        """Run the timer"""
-        c = DoubleVar()
-        if countdown == 0:
-            root.destroy()
-            display_image(resized_img, resolution)
-        if countdown < 0:
-            print("please set timer first")
-        c.set(countdown)
-        lable.config(textvariable=c)
-        countdown -= 1
-        lable.after(1000, run, countdown, resized_img, resolution)
-
-    lable.pack(anchor="center")
-    Button(
-        root,
-        text="Start",
-        font=("Arial", 15),
-        command=lambda: run(countdown, resized_img, resolution),
-    ).pack(padx=20, pady=20)
-
-    root.mainloop()
+    while currentround < maxround:
+        turn(configuration, resized_img, resolution)
+        currentround += 1
 
 
 if __name__ == "__main__":
