@@ -9,9 +9,6 @@ from tkinter import *
 from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
 
 
-# ToDo Disable start button if timer runs
-
-
 ## Getting configuration
 def get_conf():
     try:
@@ -96,20 +93,24 @@ def get_image_offline(configuration: dict):
 
 
 def resize_image(input_filename: str, resolution: tuple, configuration: dict):
-    with Image.open(input_filename) as im:
-        im = im.resize(resolution)
+    try:
+        with Image.open(input_filename) as im:
+            im = im.resize(resolution)
 
-        if targetpath := configuration.get("storage", {}).get("path"):
-            if not os.path.isdir(os.path.join(targetpath, "resized")):
-                os.mkdir(os.path.join(targetpath, "resized"))
-            im.save(f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}")
-            return f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}"
+            if targetpath := configuration.get("storage", {}).get("path"):
+                if not os.path.isdir(os.path.join(targetpath, "resized")):
+                    os.mkdir(os.path.join(targetpath, "resized"))
+                im.save(f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}")
+                return f"{targetpath}/resized/resized_{input_filename.split('/')[-1]}"
 
-        else:
-            if not os.path.isdir("resized"):
-                os.mkdir("resized")
-            im.save(f"resized/resized_{input_filename}")
-            return f"resized/resized_{input_filename}"
+            else:
+                if not os.path.isdir("resized"):
+                    os.mkdir("resized")
+                im.save(f"resized/resized_{input_filename}")
+                return f"resized/resized_{input_filename}"
+    except UnidentifiedImageError:
+        print("image invalid")
+        return get_image_offline(configuration)
 
 
 def display_image(image, res, duration):
@@ -157,25 +158,10 @@ def converttoclock(countdown):
     return "%d:%d:%d" % (hours, minutes, seconds)
 
 
-def run(countdown, resized_image, resolution):
-    """Run the timer"""
-    c = StringVar()
-    if countdown == 0:
-        root.destroy()
-        display_image(resized_img, resolution, pause)
-    if countdown < 0:
-        print("please set timer first")
-    c.set(
-        converttoclock(countdown * 1000)
-    )  # the countdown is in seconds but the conversion in ms so *1000
-    lable.config(textvariable=c)
-    countdown -= 1
-    lable.after(1000, run, countdown, resized_img, resolution)
-
-
-def turn(configuration, resized_img, resolution):
+def turn(configuration, resized_img, resolution, currentround):
     duration: str = "0h:0m"
     countdown: int = -1
+    running = True
 
     pause = configuration["breaks"]["short"]
     duration = configuration["work"]["interval"]
@@ -188,25 +174,32 @@ def turn(configuration, resized_img, resolution):
         text="Start",
         font=("Arial", 15),
         command=lambda: [
-            startbtn.config(state="disabled"),
-            run(countdown, resized_img, resolution),
+            startbtn.config(state=DISABLED),
+            run(countdown, resized_img, resolution, running),
         ],
     )
 
-    def run(countdown, resized_image, resolution):
+    def run(countdown, resized_image, resolution, running):
         """Run the timer"""
         c = StringVar()
         if countdown == 0:
             root.destroy()
             display_image(resized_img, resolution, pause)
+            return
         if countdown < 0:
             print("please set timer first")
+            return
+
+        # while running:
         c.set(
             converttoclock(countdown * 1000)
         )  # the countdown is in seconds but the conversion in ms so *1000
         lable.config(textvariable=c)
         countdown -= 1
-        lable.after(1000, run, countdown, resized_img, resolution)
+        lable.after(1000, run, countdown, resized_img, resolution, running)
+
+    if currentround > 0:
+        startbtn.invoke()
 
     lable.pack(anchor="center")
     startbtn.pack(padx=20, pady=20)
@@ -214,7 +207,6 @@ def turn(configuration, resized_img, resolution):
 
 
 def main():
-    running = False
     configuration: dict = get_conf()
     currentround = 0
     maxround = configuration["work"]["rounds"]
@@ -248,7 +240,7 @@ def main():
         print("That is unexpected")
 
     while currentround < maxround:
-        turn(configuration, resized_img, resolution)
+        turn(configuration, resized_img, resolution, currentround)
         currentround += 1
 
 

@@ -1,10 +1,14 @@
 import time
+from tkinter import *
+from tkinter.ttk import *
 
 
 class Timer:
     def __init__(self):
         self.duration = ""
         self.countdown = -1
+        self.root = Tk()
+        self.lable = Label(self.root, font=("calibri", 30))
 
     def __str__(self):
         return f"This Timer is set to run for {self.duration} and has {self.countdown} seconds left"
@@ -41,8 +45,14 @@ class Timer:
         if self.countdown < 0:
             print("please set timer first")
         else:
-            while self._countdown != 0:
-                time.sleep(1)
-                self.countdown -= 1
-                print(self.countdown)
+            self.lable.pack(anchor="center")
+            self.updateDisplay()
+            self.root.mainloop()
             return True
+
+    def updateDisplay(self):
+        while self._countdown > 0:
+            self.lable.config(text=self.countdown)
+            self.countdown -= 1
+            self.lable.after(1000, self.updateDisplay)
+        return True
