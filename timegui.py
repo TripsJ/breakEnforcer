@@ -16,7 +16,8 @@ def get_conf():
         return c.read_configfile()
     except InvalidFileError:
         print(
-            "the specified file is invalid\nNow loading default configuration and saving it to file"
+            """the specified file is invalid
+            Now loading default configuration and saving it to file"""
         )
         return rebuild_config()
     except FileNotFoundError:
@@ -161,6 +162,7 @@ def converttoclock(countdown):
 def turn(configuration, resized_img, resolution, currentround):
     duration: str = "0h:0m"
     countdown: int = -1
+    global running
     running = True
 
     pause = configuration["breaks"]["short"]
@@ -175,13 +177,31 @@ def turn(configuration, resized_img, resolution, currentround):
         font=("Arial", 15),
         command=lambda: [
             startbtn.config(state=DISABLED),
-            run(countdown, resized_img, resolution, running),
+            run(countdown, resized_img, resolution),
+        ],
+    )
+    pausebtn = Button(
+        root,
+        text="Pause",
+        font=("Arial", 15),
+        command=lambda: [
+            interrupt_count(),
         ],
     )
 
-    def run(countdown, resized_image, resolution, running):
-        """Run the timer"""
+    def interrupt_count():
+        global running
+        running = not running
+
+    def run(
+        countdown,
+        resized_image,
+        resolution,
+    ):
+        global running
+        print(running)
         c = StringVar()
+
         if countdown == 0:
             root.destroy()
             display_image(resized_img, resolution, pause)
@@ -190,19 +210,29 @@ def turn(configuration, resized_img, resolution, currentround):
             print("please set timer first")
             return
 
-        # while running:
-        c.set(
-            converttoclock(countdown * 1000)
-        )  # the countdown is in seconds but the conversion in ms so *1000
-        lable.config(textvariable=c)
-        countdown -= 1
-        lable.after(1000, run, countdown, resized_img, resolution, running)
+        if running:
+            c.set(
+                converttoclock(countdown * 1000)
+            )  # the countdown is in seconds but the conversion in ms so *1000
+            lable.config(textvariable=c)
+            # check for break
+            # While running:
+            countdown -= 1
+        lable.after(
+            1000,
+            run,
+            countdown,
+            resized_img,
+            resolution,
+        )
 
     if currentround > 0:
         startbtn.invoke()
 
     lable.pack(anchor="center")
     startbtn.pack(padx=20, pady=20)
+    pausebtn.pack(padx=20, pady=20)
+
     root.mainloop()
 
 
