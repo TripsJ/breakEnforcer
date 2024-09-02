@@ -62,7 +62,13 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
         # raises HTTPError if requst was unsuccessfull
         response.raise_for_status()
         # the api sends a list of Json back as it could very well contain multiple images. Requests from this api however, contain one url to an image.²
-        return response.json()[0]
+        # print(response.json()[0])
+        if response.json()[0]["media_type"] == "image":
+            return response.json()[0]
+        else:
+            print("received video, retrying")
+            get_json_nasa(apikey)
+
     except requests.HTTPError:
         print(response.status_code)
         sys.exit()
@@ -75,6 +81,7 @@ def cache_image(imageinfo: dict, configuration: dict):
             filename = f'{targetpath}/{imageinfo["url"].split("/")[-1]}'
         else:
             filename = imageinfo["url"].split("/")[-1]
+
         imagedata = requests.get(imageinfo["url"])
         with open(filename, "wb") as f:
             # the mode wb stands for write and binary, wich is relevant on Windows as it distinguishes between text and nontext files.
@@ -111,7 +118,11 @@ def resize_image(input_filename: str, resolution: tuple, configuration: dict):
                 return f"resized/resized_{input_filename}"
     except UnidentifiedImageError:
         print("image invalid")
-        return get_image_offline(configuration)
+        try:
+            return get_image_offline(configuration)
+        except FileNotFoundError:
+            print("unfortunately this file was not found /n Terminating")
+            sys.exit()
 
 
 def display_image(image, res, duration):
@@ -127,7 +138,9 @@ def display_image(image, res, duration):
         frame.after(converttoms(duration), frame.destroy)
     except UnidentifiedImageError:
         print("an error occured")
-
+    except FileNotFoundError:
+        print("unfortunately this file was not found /n Terminating")
+        sys.exit()
     return frame
 
 
