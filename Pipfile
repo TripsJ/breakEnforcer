@@ -21,6 +21,7 @@ pytest = "*"
 mypy = "*"
 pre-commit = "*"
 isort = "*"
+types-toml = "*"
 
 [requires]
 python_version = "3.11"

@@ -1,13 +1,15 @@
-import os.path
-from InvalidFileError import InvalidFileError
 import errno
+import os.path
+
 import toml
+
+from InvalidFileError import InvalidFileError
 
 
 class Configurator:
-    def __init__(self, filepath="break.toml"):
-        self.filepath = filepath  # path to configfile
-        self.configuration = {
+    def __init__(self, filepath: str = "break.toml") -> None:
+        self.filepath: str = filepath  # path to configfile
+        self.configuration: dict = {
             "api": {"key": {"nasa": "DEMO_KEY"}},
             "storage": {"path": ".", "max": 1},
             "breaks": {"long": 30, "short": 5},
@@ -15,7 +17,7 @@ class Configurator:
         }
         # commandline arguments
 
-    def read_configfile(self):
+    def read_configfile(self) -> dict:
         with open(self.filepath, "r", encoding="utf-8") as file:
             # open the config file using utf-8 as the encoding
             # because it has the most characters and avoids relying on system defaults
@@ -29,20 +31,20 @@ class Configurator:
 
             return conf
 
-    def write_configfile(self):
+    def write_configfile(self) -> None:
         with open("config.toml", "w") as f:
             toml.dump(self.configuration, f)
         print("config.toml created")
 
     @property
-    def filepath(self):
+    def filepath(self) -> str:
         return self._filepath
 
     @filepath.setter
-    def filepath(self, filepath):
+    def filepath(self, filepath: str) -> None:
         if os.path.isfile(os.path.abspath(filepath)):
             if os.path.splitext(filepath)[1] == ".toml":
-                self._filepath = filepath
+                self._filepath: str = filepath
             else:
                 print("invalid File")
                 # errno.EINVAL is the invalid Argument errno
