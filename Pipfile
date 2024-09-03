@@ -20,6 +20,7 @@ black = "*"
 pytest = "*"
 mypy = "*"
 pre-commit = "*"
+isort = "*"
 
 [requires]
 python_version = "3.11"

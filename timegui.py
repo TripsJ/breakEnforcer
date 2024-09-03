@@ -1,12 +1,14 @@
-import os
-import sys
-import random
-from InvalidFileError import InvalidFileError
-from configurator import Configurator
 import http.client
-import requests  # Make webrequests to apis
+import os
+import random
+import sys
 from tkinter import *
-from PIL import Image, ImageTk, ImageShow, ImageGrab, UnidentifiedImageError
+
+import requests  # Make webrequests to apis
+from PIL import Image, ImageGrab, ImageShow, ImageTk, UnidentifiedImageError
+
+from configurator import Configurator
+from InvalidFileError import InvalidFileError
 
 
 ## Getting configuration
