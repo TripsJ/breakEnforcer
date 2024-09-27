@@ -3,18 +3,30 @@ import os
 import random
 import sys
 from tkinter import *
+from typing import (  # Unions allow for a fixed set of types in variables, usefull for typing dicts stat hahe strings as keys and ints, floats or stringf as values
+    Union,
+)
 
+import PIL.Image
 import requests  # Make webrequests to apis
-from PIL import Image, ImageGrab, ImageShow, ImageTk, UnidentifiedImageError
+from PIL import ImageGrab, ImageTk, UnidentifiedImageError
+from PIL.Image import (
+    Image as PILImage,  # Allows to declare PIL Images as PILImage types
+)
 
+# chck how to correctly type PIL TKinter and pil dont seem too like each other
 from configurator import Configurator
 from InvalidFileError import InvalidFileError
 
+# glabal variable to keep track of pause state during turns
+# just declaring and typing it so mypy knows it exsists as a global and what type it is
+running: bool
+
 
 ## Getting configuration
-def get_conf():
+def get_conf() -> dict:
     try:
-        c = Configurator()
+        c: Configurator = Configurator()
         return c.read_configfile()
     except InvalidFileError:
         print(
@@ -27,21 +39,22 @@ def get_conf():
         return rebuild_config()
 
 
-def rebuild_config():
-    c = Configurator()
+def rebuild_config() -> dict:
+    c: Configurator = Configurator()
     c.write_configfile()
     return c.configuration
 
 
-def get_monitor_size():
-    monitor = ImageGrab.grab()
+def get_monitor_size() -> tuple[int, int]:
+    monitor: PILImage = ImageGrab.grab()
     return monitor.size
 
 
 def check_connection() -> bool:
-    conn = http.client.HTTPConnection(
+    conn: http.client.HTTPConnection = http.client.HTTPConnection(
         "www.google.com"
     )  # Testing against googles dns address
+    print(type(conn))
     try:
         conn.request(
             "HEAD", "/"
@@ -54,12 +67,11 @@ def check_connection() -> bool:
 ##Getting Image info from Nasa api or cache
 
 
-def get_json_nasa(apikey: str = "DEMO_KEY"):
+def get_json_nasa(apikey: str = "DEMO_KEY") -> dict | int:
     # handle timeout
     """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it as a dict. If Errors Occure, return the status code"""
-    response = requests.get(
-        "https://api.nasa.gov/planetary/apod", params={"api_key": apikey, "count": 1}
-    )
+    params: dict[str, Union[str, int]] = {"api_key": apikey, "count": 1}
+    response = requests.get("https://api.nasa.gov/planetary/apod", params)
     try:
         # raises HTTPError if requst was unsuccessfull
         response.raise_for_status()
@@ -69,14 +81,16 @@ def get_json_nasa(apikey: str = "DEMO_KEY"):
             return response.json()[0]
         else:
             print("received video, retrying")
-            get_json_nasa(apikey)
-
+            return get_json_nasa(apikey)  # if no image is received, try again
     except requests.HTTPError:
         print(response.status_code)
         sys.exit()
+        return (
+            response.status_code
+        )  # this should never ever be reached its just there so the function returns something and mypy can stop complaining
 
 
-def cache_image(imageinfo: dict, configuration: dict):
+def cache_image(imageinfo: dict, configuration: dict) -> str | dict:
     if type(imageinfo) == dict:
         # Catch key error
         if targetpath := configuration.get("storage", {}).get("path"):
@@ -94,17 +108,18 @@ def cache_image(imageinfo: dict, configuration: dict):
         return imageinfo
 
 
-def get_image_offline(configuration: dict):
+def get_image_offline(configuration: dict) -> str:
+
     if targetpath := configuration.get("storage", {}).get("path"):
         if os.path.isdir(os.path.join(targetpath, "resized")):
             return random.choice(os.listdir(os.path.join(targetpath, "resized")))
 
-    raise FielNotFoundError
+    raise FileNotFoundError
 
 
-def resize_image(input_filename: str, resolution: tuple, configuration: dict):
+def resize_image(input_filename: str, resolution: tuple, configuration: dict) -> str:
     try:
-        with Image.open(input_filename) as im:
+        with PIL.Image.open(input_filename) as im:
             im = im.resize(resolution)
 
             if targetpath := configuration.get("storage", {}).get("path"):
@@ -127,12 +142,12 @@ def resize_image(input_filename: str, resolution: tuple, configuration: dict):
             sys.exit()
 
 
-def display_image(image, res, duration):
+def display_image(image, res, duration) -> Tk:
     """display an Image"""
     try:
-        frame = Tk()
+        frame: Tk = Tk()
         frame.minsize(res[0], res[1])
-        im = Image.open(image)
+        im = PIL.Image.open(image)
         tkim = ImageTk.PhotoImage(im)
         label1 = Label(image=tkim)
         label1.image = tkim
@@ -149,23 +164,23 @@ def display_image(image, res, duration):
 ### TIMER Functions
 
 
-def converttoms(duration):
+def converttoms(duration: int | str) -> float:
     if isinstance(duration, int):
         return duration * 60 * 1000
 
     if "h" in duration:
-        splitchar = "h"
+        splitchar: str = "h"
     elif ":" in duration:
         splitchar = ":"
     else:
         return 0
     sh, sm = duration.split(splitchar)
-    h = int(sh)
-    m = int(sm) + (h * 60)
+    h: int = int(sh)
+    m: int = int(sm) + (h * 60)
     return m * 60 * 1000
 
 
-def converttoclock(countdown):
+def converttoclock(countdown: float) -> str:
     seconds = (countdown / 1000) % 60
     seconds = int(seconds)
     minutes = (countdown / (1000 * 60)) % 60
@@ -174,19 +189,24 @@ def converttoclock(countdown):
     return "%d:%d:%d" % (hours, minutes, seconds)
 
 
-def turn(configuration, resized_img, resolution, currentround):
+def turn(
+    configuration: dict,
+    resized_img: str,
+    resolution: tuple[int, int],
+    currentround: int,
+) -> None:
     duration: str = "0h:0m"
-    countdown: int = -1
+    countdown: float = -1
     global running
     running = True
 
-    pause = configuration["breaks"]["short"]
+    pause: int = configuration["breaks"]["short"]
     duration = configuration["work"]["interval"]
     countdown = converttoms(duration) / 1000
-    root = Tk()
-    clock = converttoclock(converttoms(duration))
-    lable = Label(root, text=clock)
-    startbtn = Button(
+    root: Tk = Tk()
+    clock: str = converttoclock(converttoms(duration))
+    lable: Label = Label(root, text=clock)
+    startbtn: Button = Button(
         root,
         text="Start",
         font=("Arial", 15),
@@ -195,7 +215,7 @@ def turn(configuration, resized_img, resolution, currentround):
             run(countdown, resized_img, resolution),
         ],
     )
-    pausebtn = Button(
+    pausebtn: Button = Button(
         root,
         text="Pause",
         font=("Arial", 15),
@@ -204,18 +224,19 @@ def turn(configuration, resized_img, resolution, currentround):
         ],
     )
 
-    def interrupt_count():
+    def interrupt_count() -> int:
         global running
         running = not running
+        return 0  # Mypy does not like functions that are used by others when they return None so i return 0 it does not serve any other purpose
 
     def run(
-        countdown,
-        resized_image,
-        resolution,
-    ):
+        countdown: float,
+        resized_image: str,
+        resolution: tuple[int, int],
+    ) -> int:
         global running
-        print(running)
-        c = StringVar()
+        # print(running)
+        c: StringVar = StringVar()
 
         if countdown == 0:
             root.destroy()
@@ -240,6 +261,7 @@ def turn(configuration, resized_img, resolution, currentround):
             resized_img,
             resolution,
         )
+        return 0  # Mypy does not like functions that are used by others when they return None so i return 0 it does not serve any other purpose
 
     if currentround > 0:
         startbtn.invoke()
@@ -251,12 +273,11 @@ def turn(configuration, resized_img, resolution, currentround):
     root.mainloop()
 
 
-def main():
+def main() -> None:
     configuration: dict = get_conf()
-    currentround = 0
-    maxround = configuration["work"]["rounds"]
-    print(type(configuration))
-    print(configuration)
+    currentround: int = 0
+    maxround: int = configuration["work"]["rounds"]
+
     # example config as it is currently expected
     # {'api': {'key': {'nasa': 'hgjlcOGG6700ioscmSOo7zHVzdhnf', 'test': 'test'}}, 'storage': {'path': '~/.config/break', 'max': 4}, 'breaks': {'long': 30, 'short': 10}, 'work': {'interval': 30, 'rounds': 3}}
 

@@ -188,6 +188,9 @@ cython_debug/
 *.jpg
 *.gif
 
+# configured storage for pictures
+pictures/
+
 #User specific config
 *.toml
 tkinter/

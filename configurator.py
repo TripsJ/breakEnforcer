@@ -26,8 +26,19 @@ class Configurator:
             if conf["storage"]["path"]:
                 path = conf["storage"]["path"]
                 if not os.path.isdir(path):
+                    print(f"invalid path detected: {conf["storage"]["path"]}")
                     del conf["storage"]["path"]
-                    print("invalid path detected")
+
+            for entry in [
+                conf["storage"]["max"],
+                conf["breaks"]["short"],
+                conf["breaks"]["long"],
+                conf["work"]["rounds"],
+            ]:
+                if entry:
+                    if not isinstance(entry, int):
+                        print(f"invalid configuration detected: {entry}")
+                        del entry
 
             return conf
 
