@@ -200,3 +200,8 @@ tkinter/
 #specific Files for manual testing
 *test.py
 test.*
+
+#Do not ignore testfiles
+!tests/
+!conftest.py
+!tests/testdata/

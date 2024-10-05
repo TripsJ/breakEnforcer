@@ -6,6 +6,10 @@ import toml
 from InvalidFileError import InvalidFileError
 
 
+class InvalidConfigurationError(Exception):
+    pass
+
+
 class Configurator:
     def __init__(self, filepath: str = "break.toml") -> None:
         self.filepath: str = filepath  # path to configfile
@@ -18,6 +22,7 @@ class Configurator:
         # commandline arguments
 
     def read_configfile(self) -> dict:
+        invalid_entrys = []
         with open(self.filepath, "r", encoding="utf-8") as file:
             # open the config file using utf-8 as the encoding
             # because it has the most characters and avoids relying on system defaults
@@ -27,7 +32,7 @@ class Configurator:
                 path = conf["storage"]["path"]
                 if not os.path.isdir(path):
                     print(f"invalid path detected: {conf["storage"]["path"]}")
-                    del conf["storage"]["path"]
+                    invalid_entrys.append(conf["storage"]["path"])
 
             for entry in [
                 conf["storage"]["max"],
@@ -38,9 +43,12 @@ class Configurator:
                 if entry:
                     if not isinstance(entry, int):
                         print(f"invalid configuration detected: {entry}")
-                        del entry
+                        invalid_entrys.append(entry)
 
+        if len(invalid_entrys) == 0:
             return conf
+        print(f"The following keys are not valid {invalid_entrys}")
+        raise InvalidConfigurationError
 
     def write_configfile(self) -> None:
         with open("config.toml", "w") as f:

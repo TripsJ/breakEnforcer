@@ -27,6 +27,7 @@ running: bool
 def get_conf() -> dict:
     try:
         c: Configurator = Configurator()
+        print(c.read_configfile())
         return c.read_configfile()
     except InvalidFileError:
         print(
