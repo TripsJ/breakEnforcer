@@ -13,6 +13,7 @@ I use the following during my coding process
 - black to format the code
 - pre-commit to automate the execution of black and clean up my code before committing
 - micro as a texteditor/IDE
+- pytest to test the code i wrote
 
 I also used PGP to signe commits before they went into my private repository
 
@@ -23,8 +24,9 @@ The following Python libraries were used
 
 ## Resources
 
-Testing for internet connection: https://stackoverflow.com/questions/17440343/python-checking-internet-connection-more-than-once
-automating black on commits with precommit: https://pre-commit.com and https://black.readthedocs.io/en/stable/integrations/source_version_control.html
++ Testing for internet connection: https://stackoverflow.com/questions/17440343/python-checking-internet-connection-more-than-once
++ automating black on commits with precommit: https://pre-commit.com and https://black.readthedocs.io/en/stable/integrations/source_version_control.html
++ pytest course that turned out to be very helpfull in understanding how powerfull pytest actually is https://youtu.be/cHYq1MRoyI0
 
 ## Notes
 
