@@ -1,0 +1,11 @@
+[storage]
+path = "."
+max = 1
+
+[breaks]
+long = 30
+short = 5
+
+[work]
+interval = 40
+rounds = 3

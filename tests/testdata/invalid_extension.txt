@@ -1,0 +1,1 @@
+this file just exsists to test how the configurator reacts to files wth invalid extensions
