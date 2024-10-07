@@ -25,6 +25,13 @@ _running: bool
 
 ## Getting configuration
 def get_conf() -> dict:
+    """Reads configuration from a file and stores it in a dict to be returned
+
+    Should the provided configuration file cause an exception because it is invalid, a default configuration is returned
+
+    Returns:
+        Dictionary
+    """
     try:
         c: Configurator = Configurator()
         print(c.read_configfile())
@@ -41,21 +48,30 @@ def get_conf() -> dict:
 
 
 def rebuild_config() -> dict:
+    """Writes the default configuration to a file and returns it as a dict"""
+
     c: Configurator = Configurator()
     c.write_configfile()
     return c.configuration
 
 
 def get_monitor_size() -> tuple[int, int]:
+    """Guesses teh size of a monitor by using the size property of a Pil Image of the currently focussed monitor"""
+
     monitor: PILImage = ImageGrab.grab()
     return monitor.size
 
 
 def check_connection() -> bool:
+    """test if an internet connection can be established
+
+    First tries to resolve the dns adress of google.com and if successfull, attempts to download the head of that webpage
+    More than a Head is not necessary as we do not need data from google
+    """
     conn: http.client.HTTPConnection = http.client.HTTPConnection(
         "www.google.com"
     )  # Testing against googles dns address
-    print(type(conn))
+    # print(type(conn))
     try:
         conn.request(
             "HEAD", "/"
@@ -70,7 +86,16 @@ def check_connection() -> bool:
 
 def get_json_nasa(apikey: str = "DEMO_KEY") -> dict | int:
     # handle timeout
-    """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it as a dict. If Errors Occure, return the status code"""
+    """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it.
+
+     If Errors Occure, print the status code and exit the program
+     If the Json data is not that of an image, try again
+
+    Raises
+        HTTPError
+    """
+    # TODO raise error for status code retun instead of sys.exit
+
     params: dict[str, Union[str, int]] = {"api_key": apikey, "count": 1}
     response = requests.get("https://api.nasa.gov/planetary/apod", params)
     try:
@@ -86,12 +111,16 @@ def get_json_nasa(apikey: str = "DEMO_KEY") -> dict | int:
     except requests.HTTPError:
         print(response.status_code)
         sys.exit()
-        return (
-            response.status_code
-        )  # this should never ever be reached its just there so the function returns something and mypy can stop complaining
+        return response.status_code  # this should never ever be reached
+        # its just there so the function returns something and mypy can stop complaining
 
 
 def cache_image(imageinfo: dict, configuration: dict) -> str | dict:
+    """downloads an image and saves it to the disk
+
+    if a filepath is configured in the configuration, it attempts to save in that directory, if not it saves in the current directory
+    """
+
     if type(imageinfo) == dict:
         # Catch key error
         if targetpath := configuration.get("storage", {}).get("path"):
