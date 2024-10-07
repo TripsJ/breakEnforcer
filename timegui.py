@@ -20,7 +20,7 @@ from InvalidFileError import InvalidFileError
 
 # glabal variable to keep track of pause state during turns
 # just declaring and typing it so mypy knows it exsists as a global and what type it is
-running: bool
+_running: bool
 
 
 ## Getting configuration
@@ -198,8 +198,8 @@ def turn(
 ) -> None:
     duration: str = "0h:0m"
     countdown: float = -1
-    global running
-    running = True
+    global _running
+    _running = True
 
     pause: int = configuration["breaks"]["short"]
     duration = configuration["work"]["interval"]
@@ -226,8 +226,8 @@ def turn(
     )
 
     def interrupt_count() -> int:
-        global running
-        running = not running
+        global _running
+        _running = not _running
         return 0  # Mypy does not like functions that are used by others when they return None so i return 0 it does not serve any other purpose
 
     def run(
@@ -235,7 +235,7 @@ def turn(
         resized_image: str,
         resolution: tuple[int, int],
     ) -> int:
-        global running
+        global _running
         # print(running)
         c: StringVar = StringVar()
 
@@ -247,7 +247,7 @@ def turn(
             print("please set timer first")
             return
 
-        if running:
+        if _running:
             c.set(
                 converttoclock(countdown * 1000)
             )  # the countdown is in seconds but the conversion in ms so *1000
