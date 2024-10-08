@@ -48,7 +48,10 @@ def get_conf() -> dict:
 
 
 def rebuild_config() -> dict:
-    """Writes the default configuration to a file and returns it as a dict"""
+    """Writes the default configuration to a file named config.toml and returns it as a dict
+    Returns:
+        dict
+    """
 
     c: Configurator = Configurator()
     c.write_configfile()
@@ -56,7 +59,9 @@ def rebuild_config() -> dict:
 
 
 def get_monitor_size() -> tuple[int, int]:
-    """Guesses teh size of a monitor by using the size property of a Pil Image of the currently focussed monitor"""
+    """Guesses teh size of a monitor by using the size property of a Pil Image of the currently focussed monitor
+    Returns
+        Tuple"""
 
     monitor: PILImage = ImageGrab.grab()
     return monitor.size
@@ -67,6 +72,8 @@ def check_connection() -> bool:
 
     First tries to resolve the dns adress of google.com and if successfull, attempts to download the head of that webpage
     More than a Head is not necessary as we do not need data from google
+        Returns
+            bool
     """
     conn: http.client.HTTPConnection = http.client.HTTPConnection(
         "www.google.com"
@@ -81,17 +88,18 @@ def check_connection() -> bool:
         return False  # In case of exception return False
 
 
-##Getting Image info from Nasa api or cache
-
-
 def get_json_nasa(apikey: str = "DEMO_KEY") -> dict | int:
     # handle timeout
     """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it.
 
      If Errors Occure, print the status code and exit the program
      If the Json data is not that of an image, try again
-
-    Raises
+     Arguments:
+        String: API Key (defaults to DEMO_Key)
+    Returns:
+        Dictionary with the content of the json
+        Technically can return an Int status code that should never happen because its catched before
+     Raises
         HTTPError
     """
     # TODO raise error for status code retun instead of sys.exit
@@ -119,6 +127,14 @@ def cache_image(imageinfo: dict, configuration: dict) -> str | dict:
     """downloads an image and saves it to the disk
 
     if a filepath is configured in the configuration, it attempts to save in that directory, if not it saves in the current directory
+
+    Arguments
+        imageinfo: Dictionary containing the information from the api
+        configuration: Dictionary containing the user set configuration
+
+    Returns
+        String Filename
+        Dictionary Imageinfo
     """
 
     if type(imageinfo) == dict:
@@ -135,7 +151,7 @@ def cache_image(imageinfo: dict, configuration: dict) -> str | dict:
             f.write(imagedata.content)
         return filename
     else:
-        return imageinfo
+        return imageinfo  # TODO: This should probably be an exception
 
 
 def get_image_offline(configuration: dict) -> str:
