@@ -199,7 +199,13 @@ tkinter/
 
 #specific Files for manual testing
 *test.py
+.dir-locals.
 test.*
+#Emacs shadowfiles
+\#*#
+*.persp
+*-perspective
+
 
 #Do not ignore testfiles
 !tests/

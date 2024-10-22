@@ -32,8 +32,9 @@ def get_conf() -> dict:
     Returns:
         Dictionary
     """
+
+    c: Configurator = Configurator()
     try:
-        c: Configurator = Configurator()
         print(c.read_configfile())
         return c.read_configfile()
     except InvalidFileError:
@@ -41,21 +42,15 @@ def get_conf() -> dict:
             """the specified file is invalid
             Now loading default configuration and saving it to file"""
         )
-        return rebuild_config()
+        c.write_default()
+        return c.DEFAULT_CONFIG
+
     except FileNotFoundError:
-        print("the specified file was not Found")
-        return rebuild_config()
-
-
-def rebuild_config() -> dict:
-    """Writes the default configuration to a file named config.toml and returns it as a dict
-    Returns:
-        dict
-    """
-
-    c: Configurator = Configurator()
-    c.write_configfile()
-    return c.configuration
+        print(
+            "the specified file was not Found, Loading default config and writing to file"
+        )
+        c.write_default()
+        return c.DEFAULT_CONFIG
 
 
 def get_monitor_size() -> tuple[int, int]:
@@ -287,10 +282,10 @@ def turn(
         if countdown == 0:
             root.destroy()
             display_image(resized_img, resolution, pause)
-            return
+            return 0
         if countdown < 0:
             print("please set timer first")
-            return
+            return 1
 
         if _running:
             c.set(
@@ -329,12 +324,12 @@ def main() -> None:
 
     if check_connection():
         if configuration["api"]["key"]["nasa"]:
-            info = get_json_nasa(configuration["api"]["key"]["nasa"])
+            nasa_img_info = get_json_nasa(configuration["api"]["key"]["nasa"])
         else:
             print("no apikey in config, using Demo key")
-            info = get_json_nasa()
+            nasa_img_info = get_json_nasa()
 
-        image = cache_image(info, configuration)
+        image = cache_image(nasa_img_info, configuration)
         print(image)
         imageoff = None
     else:

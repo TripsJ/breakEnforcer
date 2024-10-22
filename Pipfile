@@ -27,4 +27,3 @@ types-pillow = "*"
 pytest-stub = "*"
 
 [requires]
-python_version = "3.11"
