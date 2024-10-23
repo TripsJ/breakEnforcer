@@ -27,6 +27,20 @@ class Configurator:
 
     def read_configfile(self) -> dict:
         invalid_entrys = []
+        valid_keys = [
+            "storage",
+            "max",
+            "breaks",
+            "long",
+            "short",
+            "work",
+            "rounds",
+            "path",
+            "interval",
+            "api",
+            "key",
+            "nasa",
+        ]
         with open(self.filepath, "r", encoding="utf-8") as file:
             # open the config file using utf-8 as the encoding
             # because it has the most characters and avoids relying on system defaults
@@ -34,6 +48,9 @@ class Configurator:
             print(conf)
             print(file)
             # VALIDATE ENTRIES
+            for key in conf.keys():
+                if key not in valid_keys:
+                    raise InvalidConfigurationError
             if conf["storage"]["path"]:
                 path = conf["storage"]["path"]
                 if not os.path.isdir(path):
@@ -54,7 +71,7 @@ class Configurator:
         if len(invalid_entrys) == 0:
             self.configuration = conf
             return self.configuration
-        print(f"The following keys are not valid {invalid_entrys}")
+        print(f"The following entries are not valid {invalid_entrys}")
         raise InvalidConfigurationError
 
     # def write_configfile(self) -> None:

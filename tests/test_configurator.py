@@ -37,8 +37,26 @@ def test_read_valid_configfile(mock_os_is_file):
         }
 
 
-def test_read_invalid_keys_configfile():
-    pass
+@mock.patch("os.path.isfile")
+def test_read_invalid_keys_configfile(mock_os_is_file):
+    wrong_keys_data = """
+   [storage]
+   foo = "."
+   max = 1
+   [Jinx]
+   long = 30
+   short = 5
+
+   [work]
+   Peter = 3
+   Horst = 5
+   """
+    mock_os_is_file.return_value = True
+    mock_open = mock.mock_open(read_data=wrong_keys_data)
+    with mock.patch("builtins.open", mock_open):
+        with pytest.raises(configurator.InvalidConfigurationError):
+            invalid_config = configurator.Configurator("mockfile.toml")
+            invalid_config.read_configfile()
 
 
 # If file exsists but is invalid check if new config has been written
