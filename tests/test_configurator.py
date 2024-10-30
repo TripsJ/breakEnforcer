@@ -59,47 +59,25 @@ def test_read_invalid_keys_configfile(mock_os_is_file):
             invalid_config.read_configfile()
 
 
-# If file exsists but is invalid check if new config has been written
-# mock file open on empty file and check contents after
-def test_read_invalid_configfile(invalid_file, error):
-
-    assert (
-        (not os.path.isfile(invalid_file))
-        or (
-            invalid_file == "testdata/invalid_extension.txt"
-            and os.path.isfile(invalid_file)
-        )
-        or (
-            invalid_file == "testdata/copyvalidasyaml.yaml"
-            and os.path.isfile(invalid_file)
-        )
-    )
-    with pytest.raises(error):
-        configurator.Configurator(invalid_file)
-
-
-# @mock.patch('os.path.isfile')
-# def test_write_config(mock_os_is_file):
-
-#    data = '[storage]\npath = "."\nmax = 1\n[breaks]\nlong = 30\nshort = 5\n[work]\ninterval = 40\nrounds = 3'
-
-#    mock_os_is_file.return_value =  True
-#    mock_open = mock.mock_open(read_data=data)
-#    with mock.patch("builtins.open", mock_open):
-#        config = configurator.Configurator("mockfile.toml")
-
-#    empty_file = ""
-#    mock_open_empty = mock.mock_open(read_data=empty_file)
-#    with mock.patch("builtins.open",mock_open_empty):
-#        config.write_configfile()
-#        print (empty_file)
-#    data = data.replace("\n","").strip()
-#    empty_file=empty_file.replace("\n","").strip()
-#    # \n dont matter to the toml file
-#    print(data)
-#    print(empty_file)
-#
-#    assert data == empty_file
+@mock.patch("os.path.isfile")
+def test_read_invalid_configfile(mock_os_is_file):
+    mock_os_is_file.return_value = True
+    mock_junk_data = """
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    In et urna ac est scelerisque varius.
+    Pellentesque sed justo convallis lorem luctus semper.
+    Aliquam vehicula sapien et velit tempor, vitae ullamcorper nisl bibendum.
+    Aenean eget ante id tortor faucibus tristique in a lectus.
+    Proin mollis turpis pulvinar lectus posuere, nec porta odio sollicitudin.
+    Nunc consequat massa ac dui mattis, quis egestas diam ullamcorper.
+    Donec vehicula nisl ut metus hendrerit consectetur.
+    Proin ultricies massa condimentum neque malesuada lobortis.
+    Integer commodo tortor quis vehicula consectetur.
+    """
+    mock_open = mock.mock_open(read_data=mock_junk_data)
+    with mock.patch("builtins.open", mock_open):
+        with pytest.raises(InvalidFileError):
+            configurator.Configurator("junk.txt")
 
 
 @mock.patch("os.path.isfile")

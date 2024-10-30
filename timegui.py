@@ -9,6 +9,7 @@ from typing import (  # Unions allow for a fixed set of types in variables, usef
 
 import PIL.Image
 import requests  # Make webrequests to apis
+import toml
 from PIL import ImageGrab, ImageTk, UnidentifiedImageError
 from PIL.Image import (
     Image as PILImage,  # Allows to declare PIL Images as PILImage types
@@ -23,6 +24,27 @@ from InvalidFileError import InvalidFileError
 _running: bool
 
 
+# Write out a standard configfile and return it
+def write_default_config():
+    """Write a sane default configuration to file and return it
+    Returns:
+       Dictionary
+    """
+    DEFAULT_CONFIG = {
+        "api": {"key": {"nasa": "DEMO_KEY"}},
+        "storage": {"path": ".", "max": 1},
+        "breaks": {"long": 30, "short": 5},
+        "work": {"interval": 40, "rounds": 3},
+    }
+
+    if os.path.isfile("config.toml"):
+        os.remove("config.toml")
+    with open("config.toml", "w") as f:
+        toml.dump(DEFAULT_CONFIG, f)
+    print("default config created")
+    return DEFAULT_CONFIG
+
+
 ## Getting configuration
 def get_conf() -> dict:
     """Reads configuration from a file and stores it in a dict to be returned
@@ -33,8 +55,9 @@ def get_conf() -> dict:
         Dictionary
     """
 
-    c: Configurator = Configurator()
     try:
+
+        c: Configurator = Configurator()
         print(c.read_configfile())
         return c.read_configfile()
     except InvalidFileError:
@@ -42,21 +65,19 @@ def get_conf() -> dict:
             """the specified file is invalid
             Now loading default configuration and saving it to file"""
         )
-        c.write_default()
-        return c.DEFAULT_CONFIG
+        return write_default_config()
 
     except FileNotFoundError:
         print(
             "the specified file was not Found, Loading default config and writing to file"
         )
-        c.write_default()
-        return c.DEFAULT_CONFIG
+        return write_default_config()
 
 
 def get_monitor_size() -> tuple[int, int]:
     """Guesses teh size of a monitor by using the size property of a Pil Image of the currently focussed monitor
     Returns
-        Tuple"""
+        Tuple of Integers"""
 
     monitor: PILImage = ImageGrab.grab()
     return monitor.size
