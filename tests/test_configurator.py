@@ -25,7 +25,7 @@ def test_read_valid_configfile(mock_os_is_file):
    [work]
    interval = 40
    rounds = 3
-   """
+  """
     mock_os_is_file.return_value = True
     mock_open = mock.mock_open(read_data=data)
     with mock.patch("builtins.open", mock_open):

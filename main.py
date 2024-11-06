@@ -25,7 +25,7 @@ _running: bool
 
 
 # Write out a standard configfile and return it
-def write_default_config():
+def write_default_config(filename: str) -> dict:
     """Write a sane default configuration to file and return it
     Returns:
        Dictionary
@@ -37,9 +37,9 @@ def write_default_config():
         "work": {"interval": 40, "rounds": 3},
     }
 
-    if os.path.isfile("config.toml"):
-        os.remove("config.toml")
-    with open("config.toml", "w") as f:
+    if os.path.isfile(filename):
+        os.remove(filename)
+    with open(filename, "w") as f:
         toml.dump(DEFAULT_CONFIG, f)
     print("default config created")
     return DEFAULT_CONFIG
@@ -65,13 +65,13 @@ def get_conf() -> dict:
             """the specified file is invalid
             Now loading default configuration and saving it to file"""
         )
-        return write_default_config()
+        return write_default_config("config.toml")
 
     except FileNotFoundError:
         print(
             "the specified file was not Found, Loading default config and writing to file"
         )
-        return write_default_config()
+        return write_default_config("config.toml")
 
 
 def get_monitor_size() -> tuple[int, int]:
