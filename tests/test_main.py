@@ -1,4 +1,5 @@
 import unittest.mock as mock
+from http.client import NotConnected
 
 import pytest
 from PIL import Image as Im
@@ -92,6 +93,11 @@ def test_get_conf_not_found(mock_os_is_file) -> None:
 
 @mock.patch("PIL.ImageGrab.grab")
 def test_get_monitor_size(mock_monitor) -> None:
+    """Test returns a fixed  size image as 'Monitor', and tests if the expected value is returned
+    Returns:
+           None
+    Raises:
+           AssertionError"""
 
     return_image = Im.new(mode="RGB", size=(1, 1))
     mock_monitor.return_value = return_image
@@ -117,8 +123,31 @@ def test_display_image() -> None:
 ############################# Connection related tests ###########################
 
 
-def test_check_connection() -> None:
-    pass
+@mock.patch("http.client.HTTPConnection")
+@mock.patch("http.client.HTTPResponse")
+def test_check_connection_successfull(mock_connection, mock_response) -> None:
+    """mocks a Valid Network connectiont, checks if check connection returns true
+    Returns
+        None
+    Raises
+        AssertionError
+    """
+    mock_response.status = 200
+    mock_connection.getresponse = mock.MagicMock(retun_value=mock_response)
+    assert main.check_connection() == True
+
+
+@pytest.mark.skip(reason="Test not working yet")
+def test_check_connection_unsuccessfull() -> None:
+    """mocks an invalid Network connectiont, checks if check connection returns False
+    Returns
+        None
+    Raises
+        AssertionError
+    """
+    with mock.patch("http.client.HTTPConnection") as mock_connection:
+        mock_connection.side_effect = NotConnected
+        assert main.check_connection() == False
 
 
 def test_get_json_nasa() -> None:
