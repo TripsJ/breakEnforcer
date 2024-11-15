@@ -3,6 +3,7 @@ import os
 import random
 import sys
 from tkinter import *
+from tkinter import messagebox as msg
 from typing import (  # Unions allow for a fixed set of types in variables, usefull for typing dicts stat hahe strings as keys and ints, floats or stringf as values
     Union,
 )
@@ -217,6 +218,11 @@ def converttoclock(countdown: float) -> str:
     return "%d:%d:%d" % (hours, minutes, seconds)
 
 
+def onclose() -> None:
+    if msg.askokcancel(title="EXIT ?", message="Do you want to quit?"):
+        sys.exit()
+
+
 def turn(
     configuration: dict,
     resized_img: str,
@@ -302,7 +308,7 @@ def turn(
     lable.pack(anchor="center", pady=20)
     startbtn.pack(padx=20, pady=20)
     pausebtn.pack(padx=20, pady=20)
-
+    root.protocol("WM_DELETE_WINDOW", onclose)
     root.mainloop()
 
 
