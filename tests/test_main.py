@@ -104,7 +104,11 @@ def test_get_monitor_size(mock_monitor) -> None:
     assert main.get_monitor_size() == (1, 1)
 
 
-def test_cache_image() -> None:
+# Test needs to run at least twice.oce with a patched storage path thats configured once grabbing on the default config.
+
+
+def test_cache_image(tmpdir) -> None:
+
     pass
 
 
@@ -137,7 +141,7 @@ def test_check_connection_successfull(mock_connection, mock_response) -> None:
     assert main.check_connection() == True
 
 
-@pytest.mark.skip(reason="Test not working yet")
+# @pytest.mark.skip(reason="Test not working yet")
 def test_check_connection_unsuccessfull() -> None:
     """mocks an invalid Network connectiont, checks if check connection returns False
     Returns
@@ -146,15 +150,27 @@ def test_check_connection_unsuccessfull() -> None:
         AssertionError
     """
     with mock.patch("http.client.HTTPConnection") as mock_connection:
-        mock_connection.side_effect = NotConnected
+        mock_connection.return_value = NotConnected
         assert main.check_connection() == False
 
 
 def test_get_json_nasa() -> None:
+    valid_json_data = {
+        "date": "2024-11-13",
+        "explanation": "A mere 56 million light-years distant toward the southern constellation Fornax, NGC 1365 is an enormous barred spiral galaxy about 200,000 light-years in diameter. That's twice the size of our own barred spiral Milky Way. This sharp image from the James Webb Space Telescope's Mid-Infrared Instrument (MIRI) reveals stunning details of this magnificent spiral in infrared light. Webb's field of view stretches about 60,000 light-years across NGC 1365, exploring the galaxy's core and bright newborn star clusters. The intricate network of dusty filaments and bubbles is created by young stars along spiral arms winding from the galaxy's central bar. Astronomers suspect the gravity field of NGC 1365's bar plays a crucial role in the galaxy's evolution, funneling gas and dust into a star-forming maelstrom and ultimately feeding material into the active galaxy's central, supermassive black hole.",
+        "hdurl": "https://apod.nasa.gov/apod/image/2411/JWSTMIRI_ngc1365.png",
+        "media_type": "image",
+        "service_version": "v1",
+        "title": "Barred Spiral Galaxy NGC 1365 from Webb",
+        "url": "https://apod.nasa.gov/apod/image/2411/JWSTMIRI_ngc1365_1024.png",
+    }
+    mock_response = mock.Mock()
+    mock_response.status_code = 200
+
     pass
 
 
-####################### Timer related tests #####################################
+################## Timer related tests #####################################
 
 
 def test_converttoms() -> None:

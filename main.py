@@ -18,6 +18,7 @@ from PIL.Image import (
 # chck how to correctly type PIL TKinter and pil dont seem too like each other
 from configurator import Configurator
 from InvalidFileError import InvalidFileError
+from NasaApiCaller import NasaApiCaller
 
 # glabal variable to keep track of pause state during turns
 # just declaring and typing it so mypy knows it exsists as a global and what type it is
@@ -102,41 +103,6 @@ def check_connection() -> bool:
         return True
     except:
         return False  # In case of exception return False
-
-
-def get_json_nasa(apikey: str = "DEMO_KEY") -> dict | int:
-    # handle timeout
-    """Grab image description from the nasa Astronomy image of the day, parse the returned json and return it.
-
-     If Errors Occure, print the status code and exit the program
-     If the Json data is not that of an image, try again
-     Arguments:
-        String: API Key (defaults to DEMO_Key)
-    Returns:
-        Dictionary with the content of the json
-        Technically can return an Int status code that should never happen because its catched before
-     Raises
-        HTTPError
-    """
-    # TODO raise error for status code retun instead of sys.exit
-
-    params: dict[str, Union[str, int]] = {"api_key": apikey, "count": 1}
-    response = requests.get("https://api.nasa.gov/planetary/apod", params)
-    try:
-        # raises HTTPError if requst was unsuccessfull
-        response.raise_for_status()
-        # the api sends a list of Json back as it could very well contain multiple images. Requests from this api however, contain one url to an image.²
-        # print(response.json()[0])
-        if response.json()[0]["media_type"] == "image":
-            return response.json()[0]
-        else:
-            print("received video, retrying")
-            return get_json_nasa(apikey)  # if no image is received, try again
-    except requests.HTTPError:
-        print(response.status_code)
-        sys.exit()
-        return response.status_code  # this should never ever be reached
-        # its just there so the function returns something and mypy can stop complaining
 
 
 def cache_image(imageinfo: dict, configuration: dict) -> str | dict:
@@ -256,6 +222,7 @@ def turn(
     resized_img: str,
     resolution: tuple[int, int],
     currentround: int,
+    maxround: int,
 ) -> None:
     duration: str = "0h:0m"
     countdown: float = -1
@@ -267,7 +234,11 @@ def turn(
     countdown = converttoms(duration) / 1000
     root: Tk = Tk()
     clock: str = converttoclock(converttoms(duration))
-    lable: Label = Label(root, text=clock)
+    lable: Label = Label(
+        root,
+        text=clock,
+        font=("Arial", 22),
+    )
     startbtn: Button = Button(
         root,
         text="Start",
@@ -328,7 +299,7 @@ def turn(
     if currentround > 0:
         startbtn.invoke()
 
-    lable.pack(anchor="center")
+    lable.pack(anchor="center", pady=20)
     startbtn.pack(padx=20, pady=20)
     pausebtn.pack(padx=20, pady=20)
 
@@ -345,10 +316,11 @@ def main() -> None:
 
     if check_connection():
         if configuration["api"]["key"]["nasa"]:
-            nasa_img_info = get_json_nasa(configuration["api"]["key"]["nasa"])
+            nasa_caller = NasaApiCaller(api_key=configuration["api"]["key"]["nasa"])
         else:
             print("no apikey in config, using Demo key")
-            nasa_img_info = get_json_nasa()
+            nasa_caller = NasaApiCaller()
+        nasa_img_info = nasa_caller.get_json()
 
         image = cache_image(nasa_img_info, configuration)
         print(image)
@@ -368,7 +340,7 @@ def main() -> None:
         print("That is unexpected")
 
     while currentround < maxround:
-        turn(configuration, resized_img, resolution, currentround)
+        turn(configuration, resized_img, resolution, currentround, maxround)
         currentround += 1
 
 
