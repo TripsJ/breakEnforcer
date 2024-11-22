@@ -1,3 +1,4 @@
+import os
 import unittest.mock as mock
 from http.client import NotConnected
 
@@ -107,13 +108,21 @@ def test_get_monitor_size(mock_monitor) -> None:
 # Test needs to run at least twice.oce with a patched storage path thats configured once grabbing on the default config.
 
 
-def test_cache_image(tmpdir) -> None:
+def test_cache_image() -> None:
 
     pass
 
 
-def test_get_image_offline() -> None:
-    pass
+def test_get_image_offline(tmpdir) -> None:
+
+    os.mkdir(tmpdir.join("resized"))
+    testfile = tmpdir.join("resized").join("test.jpg")
+    conf = {"storage": {"path": tmpdir}}
+    return_image = Im.new(mode="RGB", size=(1, 1))
+    with open(testfile, "wb") as f:
+        return_image.save(f)
+    returnfile = main.get_image_offline(conf)
+    assert returnfile == "test.jpg"
 
 
 def test_resize_image() -> None:
