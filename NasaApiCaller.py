@@ -1,11 +1,11 @@
 import sys
-from typing import Union
+from typing import (  # Unions allow for a fixed set of types in variables, usefull for typing dicts stat hahe strings as keys and ints, floats or strings as values
+    Union,
+)
 
 import requests
 
-from InvalidFileError import (  # Unions allow for a fixed set of types in variables, usefull for typing dicts stat hahe strings as keys and ints, floats or stringf as values
-    InvalidFileError,
-)
+from InvalidFileError import InvalidFileError
 
 
 class NasaApiCaller:
