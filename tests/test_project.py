@@ -5,7 +5,7 @@ from http.client import NotConnected
 import pytest
 from PIL import Image as Im
 
-import main
+import project
 
 ##################### Configuration related tests ################################
 
@@ -19,7 +19,7 @@ def test_write_default_config(tmpdir) -> None:
            AssertionError"""
 
     test_file = tmpdir.join("test.toml")
-    main.write_default_config(test_file)
+    project.write_default_config(test_file)
     assert (
         test_file.read()
         == """[storage]
@@ -67,11 +67,11 @@ nasa = "DEMO_KEY"
     mock_os_is_file.return_value = True
     mock_open = mock.mock_open(read_data=valid_data)
     with mock.patch("builtins.open", mock_open):
-        assert main.get_conf()["storage"]["path"] == "."
-        assert main.get_conf()["work"]["interval"] == 25
-        assert main.get_conf()["work"]["rounds"] == 6
-        assert main.get_conf()["api"]["key"]["nasa"] == "DEMO_KEY"
-        assert main.get_conf()["breaks"]["long"] == 25
+        assert project.get_conf()["storage"]["path"] == "."
+        assert project.get_conf()["work"]["interval"] == 25
+        assert project.get_conf()["work"]["rounds"] == 6
+        assert project.get_conf()["api"]["key"]["nasa"] == "DEMO_KEY"
+        assert project.get_conf()["breaks"]["long"] == 25
 
 
 @mock.patch("os.path.isfile")
@@ -82,11 +82,11 @@ def test_get_conf_not_found(mock_os_is_file) -> None:
     Raises:
            AssertionError"""
     mock_os_is_file.return_value = False
-    assert main.get_conf()["storage"]["path"] == "."
-    assert main.get_conf()["work"]["interval"] == 40
-    assert main.get_conf()["work"]["rounds"] == 3
-    assert main.get_conf()["api"]["key"]["nasa"] == "DEMO_KEY"
-    assert main.get_conf()["breaks"]["long"] == 30
+    assert project.get_conf()["storage"]["path"] == "."
+    assert project.get_conf()["work"]["interval"] == 40
+    assert project.get_conf()["work"]["rounds"] == 3
+    assert project.get_conf()["api"]["key"]["nasa"] == "DEMO_KEY"
+    assert project.get_conf()["breaks"]["long"] == 30
 
 
 ################ Image related tests ##########################################
@@ -102,7 +102,7 @@ def test_get_monitor_size(mock_monitor) -> None:
 
     return_image = Im.new(mode="RGB", size=(1, 1))
     mock_monitor.return_value = return_image
-    assert main.get_monitor_size() == (1, 1)
+    assert project.get_monitor_size() == (1, 1)
 
 
 # Test needs to run at least twice.oce with a patched storage path thats configured once grabbing on the default config.
@@ -121,7 +121,7 @@ def test_get_image_offline(tmpdir) -> None:
     return_image = Im.new(mode="RGB", size=(1, 1))
     with open(testfile, "wb") as f:
         return_image.save(f)
-    returnfile = main.get_image_offline(conf)
+    returnfile = project.get_image_offline(conf)
     assert returnfile == "test.jpg"
 
 
@@ -147,7 +147,7 @@ def test_check_connection_successfull(mock_connection, mock_response) -> None:
     """
     mock_response.status = 200
     mock_connection.getresponse = mock.MagicMock(retun_value=mock_response)
-    assert main.check_connection() == True
+    assert project.check_connection() == True
 
 
 # @pytest.mark.skip(reason="Test not working yet")
@@ -160,7 +160,7 @@ def test_check_connection_unsuccessfull() -> None:
     """
     with mock.patch("http.client.HTTPConnection") as mock_connection:
         mock_connection.return_value = NotConnected
-        assert main.check_connection() == False
+        assert project.check_connection() == False
 
 
 def test_get_json_nasa() -> None:
@@ -202,5 +202,5 @@ def test_run() -> None:
     pass
 
 
-def test_main() -> None:
+def test_project() -> None:
     pass
