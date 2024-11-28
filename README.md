@@ -1,4 +1,7 @@
 # breakEnforcer
+## VideoLink:
+(https://youtu.be/AnJzhlF6brE)
+
 
 This is Break Enforcer, a python programm that forces you to step away by fully occupying your screen
 The program implements a pomodoro timer but it shows you an image scaled to fill your screen instead of a countdown, when the pomodoro is in a break phase.
@@ -50,10 +53,11 @@ should it fail, it tries again and raises Invalid
 
 While this could have been implemented as a simple method i opted for the class implementation for 3 reasons.
 
-	1. It makes the project.py easier to read cause NasaApiCaller.get_json is fairly obvious even if you dont know the details
-	2. It makes it easier to retrieve and modify the url of the api, should that ever change
-	3. It will allow with little effort, to add more apis to provide different images.
-	since that was out of scope, i decided against implementing an abstract super class but i might do that in the futur
+1. It makes the project.py easier to read cause NasaApiCaller.get_json is fairly obvious even if you dont know the details
+
+2. It makes it easier to retrieve and modify the url of the api, should that ever change
+
+3. It will allow with little effort, to add more apis to provide different images.since that was out of scope, i decided against implementing an abstract super class but i might do that in the futur
 
 ### the project.py file
 
@@ -81,6 +85,8 @@ The following Python libraries were used
 - typing to add type hints to functions that can have variable return types
 - pytest for testing
 - unittest mainly for unittest.mock to simulate certain inputs
+
+
 ## Resources
 
 + Testing for internet connection: https://stackoverflow.com/questions/17440343/python-checking-internet-connection-more-than-once

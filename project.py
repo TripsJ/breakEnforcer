@@ -308,6 +308,7 @@ def turn(
     lable.pack(anchor="center", pady=20)
     startbtn.pack(padx=20, pady=20)
     pausebtn.pack(padx=20, pady=20)
+    root.maxsize(250, 300)
     root.protocol("WM_DELETE_WINDOW", onclose)
     root.mainloop()
 
